@@ -1,4 +1,4 @@
-import { createContext, useContext, useMemo, useState } from 'react';
+import { createContext, useContext, useEffect, useMemo, useState } from 'react';
 import api from '../api/client';
 
 const AuthContext = createContext(null);
@@ -32,6 +32,18 @@ export function AuthProvider({ children }) {
     localStorage.removeItem('token');
     localStorage.removeItem('user');
   };
+
+  useEffect(() => {
+    const onUnauthorized = () => {
+      logout();
+    };
+
+    window.addEventListener('auth:unauthorized', onUnauthorized);
+
+    return () => {
+      window.removeEventListener('auth:unauthorized', onUnauthorized);
+    };
+  }, []);
 
   const value = useMemo(
     () => ({ token, user, login, register, logout, isAuthenticated: Boolean(token) }),

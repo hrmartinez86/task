@@ -46,6 +46,7 @@ export default function BoardsPage({ onLogout }) {
   const [users, setUsers] = useState([]);
   const [activeCard, setActiveCard] = useState(null);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState('');
 
   const sensors = useSensors(useSensor(PointerSensor, { activationConstraint: { distance: 4 } }));
 
@@ -70,18 +71,50 @@ export default function BoardsPage({ onLogout }) {
   };
 
   useEffect(() => {
+    let isMounted = true;
+
     (async () => {
       setLoading(true);
-      await fetchBoards();
-      const { data: usersData } = await api.get('/users');
-      setUsers(usersData);
-      setLoading(false);
+      setError('');
+
+      try {
+        await fetchBoards();
+        const { data: usersData } = await api.get('/users');
+        if (isMounted) {
+          setUsers(usersData);
+        }
+      } catch (err) {
+        if (err?.response?.status === 401) {
+          onLogout();
+          return;
+        }
+
+        if (isMounted) {
+          setError('No se pudo cargar la informacion del tablero.');
+        }
+      } finally {
+        if (isMounted) {
+          setLoading(false);
+        }
+      }
     })();
-  }, []);
+
+    return () => {
+      isMounted = false;
+    };
+  }, [onLogout]);
 
   useEffect(() => {
-    fetchBoard(selectedBoardId);
-  }, [selectedBoardId]);
+    (async () => {
+      try {
+        await fetchBoard(selectedBoardId);
+      } catch (err) {
+        if (err?.response?.status === 401) {
+          onLogout();
+        }
+      }
+    })();
+  }, [selectedBoardId, onLogout]);
 
   useEffect(() => {
     if (!selectedBoardId) return;
@@ -179,6 +212,10 @@ export default function BoardsPage({ onLogout }) {
 
   if (loading) {
     return <div className="loading">Cargando...</div>;
+  }
+
+  if (error) {
+    return <div className="loading">{error}</div>;
   }
 
   return (
