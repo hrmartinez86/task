@@ -2,6 +2,7 @@ import { useEffect, useMemo, useState } from 'react';
 import api from '../api/client';
 import { priorityLabels } from '../utils/priority';
 import RichTextEditor from './RichTextEditor';
+import CardLinks from './CardLinks';
 
 export default function CardModal({ card, users, onClose, onSave }) {
   const assetHost = import.meta.env.VITE_SOCKET_URL || window.location.origin;
@@ -68,8 +69,18 @@ export default function CardModal({ card, users, onClose, onSave }) {
   return (
     <div className="modal-backdrop">
       <div className="modal">
-        <h3>Editar tarjeta</h3>
-        <form onSubmit={submit} className="card-form">
+        <div className="modal-header">
+          <h3>Editar tarjeta</h3>
+          <div className="modal-actions">
+            <button type="button" className="ghost" onClick={onClose}>
+              Cancelar
+            </button>
+            <button type="submit" form="card-edit-form" disabled={loading}>
+              {loading ? 'Guardando...' : 'Guardar'}
+            </button>
+          </div>
+        </div>
+        <form id="card-edit-form" onSubmit={submit} className="card-form">
           <label>
             Titulo
             <input
@@ -79,13 +90,14 @@ export default function CardModal({ card, users, onClose, onSave }) {
             />
           </label>
 
-          <label>
-            Descripcion
+          <CardLinks cardId={card.id} initialLinks={card.links || []} />
+          <div className="field-group">
+            <span className="field-label">Descripcion</span>
             <RichTextEditor
               value={form.description}
               onChange={(description) => setForm((prev) => ({ ...prev, description }))}
             />
-          </label>
+          </div>
 
           <label>
             Prioridad
@@ -139,15 +151,8 @@ export default function CardModal({ card, users, onClose, onSave }) {
             ))}
           </div>
 
-          <div className="modal-actions">
-            <button type="button" className="ghost" onClick={onClose}>
-              Cancelar
-            </button>
-            <button type="submit" disabled={loading}>
-              {loading ? 'Guardando...' : 'Guardar'}
-            </button>
-          </div>
         </form>
+
       </div>
     </div>
   );

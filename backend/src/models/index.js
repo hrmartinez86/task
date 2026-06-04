@@ -4,6 +4,7 @@ const BoardMember = require('./BoardMember');
 const List = require('./List');
 const Card = require('./Card');
 const Attachment = require('./Attachment');
+const CardLink = require('./CardLink');
 const PasswordReset = require('./PasswordReset');
 
 User.belongsToMany(Board, { through: BoardMember, as: 'boards', foreignKey: 'userId' });
@@ -21,6 +22,9 @@ Card.belongsTo(User, { as: 'assignee', foreignKey: 'assigneeId' });
 Card.hasMany(Attachment, { as: 'attachments', foreignKey: 'cardId', onDelete: 'CASCADE' });
 Attachment.belongsTo(Card, { as: 'card', foreignKey: 'cardId' });
 
+Card.hasMany(CardLink, { as: 'links', foreignKey: 'cardId', onDelete: 'CASCADE' });
+CardLink.belongsTo(Card, { as: 'card', foreignKey: 'cardId' });
+
 User.hasMany(PasswordReset, { as: 'passwordResets', foreignKey: 'userId' });
 PasswordReset.belongsTo(User, { as: 'user', foreignKey: 'userId' });
 
@@ -31,5 +35,6 @@ module.exports = {
   List,
   Card,
   Attachment,
+  CardLink,
   PasswordReset
 };

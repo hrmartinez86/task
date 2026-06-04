@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState } from 'react';
-import { DndContext, PointerSensor, closestCorners, useSensor, useSensors } from '@dnd-kit/core';
+import { DndContext, PointerSensor, TouchSensor, closestCorners, useSensor, useSensors } from '@dnd-kit/core';
 import api from '../api/client';
 import ListColumn from '../components/ListColumn';
 import CardModal from '../components/CardModal';
@@ -48,7 +48,10 @@ export default function BoardsPage({ onLogout }) {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
 
-  const sensors = useSensors(useSensor(PointerSensor, { activationConstraint: { distance: 4 } }));
+  const sensors = useSensors(
+    useSensor(PointerSensor, { activationConstraint: { distance: 4 } }),
+    useSensor(TouchSensor, { activationConstraint: { delay: 180, tolerance: 8 } })
+  );
 
   const allCards = useMemo(() => {
     if (!board) return [];

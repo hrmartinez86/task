@@ -1,4 +1,4 @@
-const { Board, BoardMember, List, Card, Attachment, User } = require('../models');
+const { Board, BoardMember, List, Card, Attachment, CardLink, User } = require('../models');
 const { getBoardCache, setBoardCache } = require('./cacheService');
 
 async function getBoardForUser(boardId, userId) {
@@ -29,6 +29,7 @@ async function getBoardForUser(boardId, userId) {
             as: 'cards',
             include: [
               { model: Attachment, as: 'attachments' },
+              { model: CardLink, as: 'links' },
               { model: User, as: 'assignee', attributes: ['id', 'name', 'email', 'phone'] }
             ]
           }
